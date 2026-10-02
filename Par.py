@@ -1,21 +1,34 @@
-import requests
 from bs4 import BeautifulSoup
 
-headers = {
-    "Accept": "text/html",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_3_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Safari/605.1.15"
-}
+import requests
 
-# Проверяем ID, который вы видели в DevTools
-for pid in [1, 2, 73, 96, 500]:
-    url = f"https://scrapingsandbox.com/product/{pid}"
-    response = requests.get(url, headers=headers, timeout=10)
-    soup = BeautifulSoup(response.text, "lxml")
+from Config import MAX_WORKERS
 
-    title = soup.find("h3", class_="product-name")
-    price = soup.find("span", class_="price")
+def parse_product(productId):
+    url = requests.get(f"https://scrapingsandbox.com/product/{productId}")
+    
+    soup = BeautifulSoup(url.text, 'lxml')
 
-    if title and price:
-        print(f"ID {pid}: OK — {title.text.strip()} / {price.text.strip()}")
-    else:
-        print(f"ID {pid}: НЕ НАЙДЕНО (статус {response.status_code}, длина HTML {len(response.text)})")
+    titleTag = soup.find("h1", class_="text-2xl")
+    priceTag = soup.find("span", class_="text-3xl")
+
+    if not titleTag or not priceTag:
+        return None
+
+    name = titleTag.text.strip()
+    priceText = priceTag.text.replace("$", "").strip()
+    price = float(priceText)
+
+    return{"id": productId, "name": name, "price": price}
+
+def parse_all(product_ids, max_workers):
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    all_products = []
+
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = {executor.submit(parse_product, pid): pid for pid in product_ids}
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                all_products.append(result)
+    return all_products
