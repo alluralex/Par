@@ -15,11 +15,9 @@ def main():
     print(f"Всего товаров: {len(all_products)}")
     print(f"Время: {elapsed:.1f} секунд")
 
-    # Фильтр по цене
     filtered = [p for p in all_products if MIN_PRICE <= p["price"] <= MAX_PRICE]
     print(f"Подходящих по цене: {len(filtered)}")
 
-    # Самый дорогой
     most_expensive = max(filtered, key=lambda p: p["price"]) if filtered else None
 
     if most_expensive:

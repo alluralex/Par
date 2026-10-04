@@ -7,8 +7,10 @@ headers = {
 
 FIRSTID = 1
 MAXID = 501
-MAX_WORKERS = 20
-MIN_PRICE = 50
-MAX_PRICE = 150
+MAX_WORKERS = 10
+MIN_PRICE = 0
+MAX_PRICE = 150000
 
+URL = "https://scrapingsandbox.com/product/"
+BOT_TOKEN = "8732373657:AAH3BK-MkmG6607hIQrctarr1moGSzdfHpE"
 #Файл с начальной настройкой, с интернетом какой юзаться будет. Далее он передаёт по логике данные в par
